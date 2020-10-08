@@ -90,8 +90,7 @@ def update_sessions(response):
 Return authenticated session if username in database and given plain passwords hash is equal database saved one.
 '''
 def user_login(username, password):
-    sql = "SELECT id FROM users WHERE username='{}';".format(username)
-    c.execute(sql)
+    c.execute('SELECT id FROM users WHERE username=%(u)s;', { 'u': username })
     user_id = c.fetchone()
     if user_id is None:
         return None
@@ -103,9 +102,8 @@ def user_login(username, password):
 Compares given plain password with saved hash and return the result.
 '''
 def auth(user_id, password):
-    sql = 'SELECT salt, hash \
-           FROM users WHERE id={};'.format(user_id)
-    c.execute(sql)
+    c.execute('SELECT salt, hash \
+               FROM users WHERE id=%(u)s;', { 'u': user_id })
     r = c.fetchone()
     if r is None:
         return False
