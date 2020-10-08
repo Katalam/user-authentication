@@ -1,0 +1,120 @@
+body {
+    background-color: #1f1f1f;
+    margin-top: 1em;
+}
+
+ol li span {
+    margin-left: 0.5em;
+    display: block;
+    margin-bottom: 0.5em;
+
+}
+
+#content-segment {
+    background: white;
+}
+
+
+.mainParagraphList {
+    list-style: none;
+    counter-reset: counterParagraphs 0;
+    margin-top: 2em;
+}
+
+.mainParagraph {
+    counter-increment: counterParagraphs;
+}
+
+.mainParagraph::before {
+    content: "§ " counter(counterParagraphs);
+}
+
+h1,
+h2,
+h3,
+h4 {
+    color: #1f1f1f;
+}
+
+.ui.segment {
+    background: white;
+}
+
+.main.ui.menu {
+    background-color: #1f1f1f !important;
+    margin-top: -0.3em;
+    border-radius: 0 !important;
+}
+
+input {
+    background: #f4f0e7 !important;
+}
+
+input:focus {
+    border-color: #1f1f1f !important;
+}
+
+.ui.primary {
+    background-color: #1f1f1f !important;
+}
+
+
+.main.ui.menu .item:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.main.ui.menu .item {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.main.ui.menu .item:hover {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.fas {
+    margin-right: 0.5em;
+}
+
+a {
+    color: #1f1f1f;
+}
+
+a:hover {
+    color: #1f1f1f;
+}
+
+blockquote {
+    background: #f9f9f9;
+    border-left: 10px solid #ccc;
+    margin: 1.5em 10px;
+    padding: 0.5em 10px;
+    quotes: "\201C""\201D""\2018""\2019";
+}
+blockquote:before {
+    color: #ccc;
+    content: open-quote;
+    font-size: 4em;
+    line-height: 0.1em;
+    margin-right: 0.25em;
+    vertical-align: -0.4em;
+}
+blockquote p {
+    display: inline;
+}
+
+p {
+    margin: 0 0;
+}
+
+P:last-child {
+    margin-bottom: 1em;
+}
+
+.last-edited {
+    float: left;
+}
+
+select,
+textarea {
+    background: #f4f0e7 !important;
+}
