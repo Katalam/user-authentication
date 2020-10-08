@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div>
+  <h1>Register</h1>
+  <form action="{{ url_for('register') }}" method="post" class="ui form">
+  <div class="field">
+    <label>Username</label>
+    <input type="text" name="username" required="" placeholder="Dieter123">
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input id="pwd1" type="password" name="password" required="">
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input id="pwd2" type="password" required="">
+  </div>
+  <p style="color: red;" id="message"></p>
+  <div class="field">
+    <label>Invite code</label>
+    <input type="text" name="invite_code" required="">
+  </div>
+  <button id="btn" class="ui primary button" type="submit">Register</button>
+  </form>
+</div>
+<script>
+  const comparePasswords = function () {
+    if ($('#pwd1').val() === $('#pwd2').val()) {
+      $('#message').text('')
+      $('#btn').removeAttr('disabled')
+    }
+    else {
+      $('#message').text('The passwords do not match.')
+      $('#btn').attr('disabled', true)
+    }
+  }
+
+  $('#pwd1, #pwd2').change(comparePasswords)
+</script>
+{% endblock %}

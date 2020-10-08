@@ -35,6 +35,9 @@
                         &nbsp; Logout
                     </a>
                     {% else %}
+                    <a href="{{ url_for('register') }}" class="item"><i class="fas fa-user-plus"></i>
+                        &nbsp; Register
+                    </a>
                     <a href="{{ url_for('login') }}" class="item"><i class="fas fa-sign-in-alt"></i>
                         &nbsp; Login
                     </a>

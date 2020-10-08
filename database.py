@@ -12,23 +12,30 @@ db = mysql.connector.connect(
 c = db.cursor()
 
 user_sql = '''CREATE TABLE IF NOT EXISTS users (
-    id SERIAL UNIQUE,
-    username VARCHAR(254) NOT NULL UNIQUE DEFAULT '',
+    id SERIAL,
+    username VARCHAR(254) NOT NULL DEFAULT '',
     salt VARCHAR(254) NOT NULL DEFAULT '',
     hash VARCHAR(254) NOT NULL DEFAULT '',
     PRIMARY KEY (id));
     '''
 
 session_sql = '''CREATE TABLE IF NOT EXISTS sessions (
-    id SERIAL UNIQUE,
+    id SERIAL,
     session_id VARCHAR(254) NOT NULL UNIQUE DEFAULT '',
     expires_after TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     user_id INTEGER REFERENCES users(id),
     PRIMARY KEY (session_id));
     '''
 
+invite_codes_sql = '''CREATE TABLE IF NOT EXISTS invite_codes (
+    id SERIAL,
+    code VARCHAR(254) NOT NULL DEFAULT '',
+    created_from VARCHAR(254) NOT NULL DEFAULT 0,
+    PRIMARY KEY (id));'''
+
 c.execute(user_sql)
 c.execute(session_sql)
+c.execute(invite_codes_sql)
 db.commit()
 
 
