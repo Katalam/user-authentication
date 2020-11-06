@@ -8,14 +8,16 @@ app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 app.session_cookie_name = os.getenv('SESSION_NAME')
 
-db = mysql.connector.connect(
-    host = os.getenv('DB_HOST'),
-    user = os.getenv('DB_USER'),
-    password = os.getenv('DB_PASSWORD'),
-    database = os.getenv('DB_DATABASE')
-)
+def get_db():
+    db = mysql.connector.connect(
+        host = os.getenv('DB_HOST'),
+        user = os.getenv('DB_USER'),
+        password = os.getenv('DB_PASSWORD'),
+        database = os.getenv('DB_DATABASE')
+    )
+    return db
 
-c = db.cursor()
+# c = db.cursor()
 
 @app.route('/')
 def index():
@@ -23,6 +25,8 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if 'sid' in session:
+        return redirect('edit')
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -33,8 +37,6 @@ def login():
                 m='Username or password is wrong.')
         session['sid'] = result[0]
         session['user_id'] = result[1]
-        return redirect('edit')
-    if 'sid' in session:
         return redirect('edit')
     return render_template('login.html')
 
@@ -47,9 +49,12 @@ def logout():
 @app.route('/edit')
 def edit():
     if 'sid' in session and 'user_id' in session:
+        db = get_db()
+        c = db.cursor()
         sql = 'SELECT username FROM users WHERE id={};'.format(session['user_id'])
         c.execute(sql)
         r = c.fetchone()
+        db.close()
         return render_template('base.html', sid=True, h='Logged in as {}'.format(r[0]))
     return redirect('login')
 
@@ -60,10 +65,14 @@ def register():
         password = request.form.get('password')
         code = request.form.get('invite_code')
 
+        db = get_db()
+        c = db.cursor()
+
         c.execute('SELECT id FROM invite_codes \
                    WHERE code=%(c)s', { 'c': code })
         data = c.fetchone()
         if data is None:
+            db.close()
             return render_template('base.html', sid='sid' in session,
                                     h='Wrong invite code',
                                     m='Invite code not found.')
@@ -83,6 +92,7 @@ def register():
                        's': salt,
                        'h': user_hash })
         db.commit()
+        db.close()
         return redirect(url_for('login'))
     return render_template('register.html')
 
@@ -93,6 +103,9 @@ def not_found(error):
 
 @app.before_request
 def remove_expired_sessions():
+    db = get_db()
+    c = db.cursor()
+
     sql = 'DELETE FROM sessions \
            WHERE expires_after < NOW();'
     c.execute(sql)
@@ -105,18 +118,24 @@ def remove_expired_sessions():
         if data is None:
             session.pop('sid', None)
             session.pop('user_id', None)
+            db.close()
             return
         session['sid'] = data[0]
         session['user_id'] = data[1]
+    db.close()
 
 @app.after_request
 def update_sessions(response):
+    db = get_db()
+    c = db.cursor()
+
     if 'sid' in session:
         sql = "UPDATE sessions \
                SET expires_after = DATE_ADD(NOW(), INTERVAL 1 HOUR) \
                WHERE session_id='{}';".format(session['sid'])
         c.execute(sql)
         db.commit()
+    db.close()
     return response
 
 '''
@@ -124,8 +143,12 @@ Return authenticated session if username in database
 and given plain passwords hash is equal database saved one.
 '''
 def user_login(username, password):
+    db = get_db()
+    c = db.cursor()
+
     c.execute('SELECT id FROM users WHERE username=%(u)s;', { 'u': username })
     user_id = c.fetchone()
+    db.close()
     if user_id is None:
         return None
     if auth(user_id[0], password):
@@ -136,9 +159,13 @@ def user_login(username, password):
 Compares given plain password with saved hash and return the result.
 '''
 def auth(user_id, password):
+    db = get_db()
+    c = db.cursor()
+
     c.execute('SELECT salt, hash \
                FROM users WHERE id=%(u)s;', { 'u': user_id })
     r = c.fetchone()
+    db.close()
     if r is None:
         return False
     salt = r[0]
@@ -155,9 +182,13 @@ def auth(user_id, password):
 Creates authenticated session.
 '''
 def create_authenticated_session(user_id):
+    db = get_db()
+    c = db.cursor()
+
     sid = secrets.token_hex(32)
     sql = "INSERT INTO sessions (session_id, expires_after, user_id) \
            VALUES ('{}', DATE_ADD(NOW(), INTERVAL 1 HOUR), '{}');".format(sid, user_id)
     c.execute(sql)
     db.commit()
+    db.close()
     return sid, user_id

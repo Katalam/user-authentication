@@ -16,6 +16,7 @@ user_sql = '''CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(254) NOT NULL DEFAULT '',
     salt VARCHAR(254) NOT NULL DEFAULT '',
     hash VARCHAR(254) NOT NULL DEFAULT '',
+    create_code BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (id));
     '''
 
